@@ -19,6 +19,7 @@ export class MazeStore {
   private _log = signal<string[]>([]);
   private _visited = signal(new Set<string>());
   private _isExploring = signal(false);
+  private _isFinish = signal(false);
   // pour gérer les impasses et les chemins les plus courts, on a besoin d'avoir tous les chemins et leurs longueurs
   private _results = signal<{ path: CellCoordinates[]; length: number }[]>([]);
   private isExploringNow = false;
@@ -60,6 +61,10 @@ export class MazeStore {
     return this._isExploring;
   }
 
+  get isFinish() {
+    return this._isFinish;
+  }
+
   get results() {
     return this._results;
   }
@@ -77,6 +82,24 @@ export class MazeStore {
         });
       }
     });
+  }
+
+  /**
+   * Réinitialisation des états d'origine
+   */
+  public reset(): void {
+    this._position.set({ x: 0, y: 0 });
+    this._map.set(new Map());
+    this._isDead.set(false);
+    this._isWin.set(false);
+    this._moveUrl.set('');
+    this._discoverUrl.set('');
+    this._log.set([]);
+    this._visited.set(new Set());
+    this._isExploring.set(false);
+    this._results.set([]);
+    this._isFinish.set(false);
+    this.isExploringNow = false;
   }
 
   /**
@@ -115,6 +138,7 @@ export class MazeStore {
 
     if (!results.length) {
       this.addLog('Aucun chemin disponible vers la sortie.');
+      this.isFinish.set(true);
       return;
     }
 
@@ -136,6 +160,7 @@ export class MazeStore {
     }
 
     this.finishExploration('Le joueur est arrivé à la sortie !');
+    this.isFinish.set(true);
     console.log(this.log());
   }
 
@@ -392,23 +417,6 @@ export class MazeStore {
 
     const shortest = allPaths[0];
     this.addLog(`Chemin le plus court : ${shortest.length} cases.`);
-  }
-
-  /**
-   * Réinitialisation des états d'origine
-   */
-  private reset(): void {
-    this._position.set({ x: 0, y: 0 });
-    this._map.set(new Map());
-    this._isDead.set(false);
-    this._isWin.set(false);
-    this._moveUrl.set('');
-    this._discoverUrl.set('');
-    this._log.set([]);
-    this._visited.set(new Set());
-    this._isExploring.set(false);
-    this._results.set([]);
-    this.isExploringNow = false;
   }
 
   /**

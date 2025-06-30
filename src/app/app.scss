@@ -1,42 +1,83 @@
+.start-game {
+  margin-bottom: 2rem;
+}
+
 .grid {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-}
+  gap: 0.15rem;
 
-.row {
-  display: flex;
-  gap: 2px;
-}
+  .row {
+    display: flex;
+    gap: 0.15rem;
 
-.cell {
-  width: 30px;
-  height: 30px;
-  border: 1px solid #ccc;
-  text-align: center;
-  line-height: 30px;
-  font-size: 0.8rem;
+    .cell {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 0.15rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
 
-  &.wall {
-    background-color: #333;
-    color: white;
+      &.home,
+      &.path,
+      &.stop {
+        background: #eedeae;
+        background: radial-gradient(circle, #eedeae 0%, #e6bf81 100%);
+      }
+
+      &.home::before {
+        content: "🏠";
+        font-size: 100%;
+      }
+
+      &.wall {
+        background: #8a2f2f;
+        background: radial-gradient(
+          circle,
+          #8a2f2f 0%,
+          #960000 47%,
+          #660000 100%
+        );
+      }
+
+      &.trap {
+        background: #4d4c4b;
+        background: radial-gradient(
+          circle,
+          #4d4c4b 1%,
+          #363635 31%,
+          #343433 80%,
+          #4b463d 75%,
+          #e6bf81 100%
+        );
+
+        &::before {
+          content: "🕸️";
+        }
+      }
+
+      &.stop::before {
+        content: "🏁";
+      }
+
+      &.player {
+        border: 2px solid #007bff;
+        box-shadow: 0 0 4px #007bff;
+
+        &::before {
+          content: "🧍‍♀️";
+        }
+
+        &.stop::before {
+          content: "🎊";
+        }
+
+        &.trap::before {
+          content: "💀";
+        }
+      }
+    }
   }
-
-  &.path {
-    background-color: #ddd;
-  }
-
-  &.trap {
-    background-color: red;
-  }
-
-  &.stop {
-    background-color: green;
-  }
-}
-
-.player {
-  border: 2px solid #007bff;
-  box-shadow: 0 0 4px #007bff;
-  font-weight: bold;
 }

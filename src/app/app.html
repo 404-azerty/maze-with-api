@@ -6,9 +6,29 @@
 </header>
 
 <main>
-  <button (click)="startGame()" [disabled]="mazeStore.isExploring()">
-    Start game
-  </button>
+  <menu>
+    <li>
+      <button
+        matButton
+        class="start-game"
+        (click)="onResetGame()"
+        [disabled]="mazeStore.isExploring() || !mazeStore.isFinish()"
+      >
+        Reset game
+      </button>
+    </li>
+
+    <li>
+      <button
+        matButton="elevated"
+        class="start-game"
+        (click)="onStartGame()"
+        [disabled]="mazeStore.isExploring()"
+      >
+        Start game
+      </button>
+    </li>
+  </menu>
 
   <div class="grid">
     @for (row of grid(); track trackByRow(row, rowIndex); let rowIndex = $index)
@@ -20,20 +40,11 @@
         class="cell"
         [ngClass]="getCellClass(cell)"
         [attr.data-coord]="cell ? cell.x + ',' + cell.y : null"
-      >
-        {{ cell ? cell.value[0] : "" }}
-      </div>
+      ></div>
       }
     </div>
     }
   </div>
-
-  <!-- <div class="logs">
-    <h3>Logs</h3>
-    @for (line of mazeStore.log(); track $index) {
-    <div>{{ line }}</div>
-    }
-  </div> -->
 </main>
 
 <footer>

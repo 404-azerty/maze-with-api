@@ -11,15 +11,18 @@ import { MazeStore } from './shared/stores/_index';
 import { MazeService } from './shared/services/_index';
 import { Cell } from './shared/interfaces/_index';
 import { firstValueFrom } from 'rxjs';
-import { CELL_TYPE } from './shared/enums/cell.enum';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { PlayerDialog } from './dialogs/_index';
 
 @Component({
   selector: 'app-root',
-  imports: [NgClass],
+  imports: [NgClass, MatButtonModule],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
 export class App implements OnDestroy {
+  private readonly dialog = inject(MatDialog);
   private readonly mazeService = inject(MazeService);
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
   protected readonly mazeStore = inject(MazeStore);
@@ -37,8 +40,6 @@ export class App implements OnDestroy {
     this.grid.set(this.buildGrid(cells));
   });
 
-  private readonly playerName = 'Johanne';
-
   public trackByRow = (_: any, rowIndex: number): string => {
     return `row-${rowIndex}`;
   };
@@ -52,23 +53,27 @@ export class App implements OnDestroy {
 
   public ngOnDestroy(): void {
     this.updatePlayerKey.destroy();
+    this.updateGrid.destroy();
   }
 
-  // Lancement d'une nouvelle partie
-  public async startGame(): Promise<void> {
-    try {
-      const data = await firstValueFrom(
-        this.mazeService.startGame(this.playerName)
-      );
-      this.mazeStore.updateFromStart(data);
-      await this.mazeStore.explore();
-      await this.mazeStore.followShortestPath();
-    } catch (err) {
-      console.error('Erreur lors du démarrage du jeu :', err);
-    }
+  public async onStartGame(): Promise<void> {
+    this.dialog
+      .open(PlayerDialog)
+      .afterClosed()
+      .subscribe((result: { playerName: string } | undefined) => {
+        if (!result) {
+          return;
+        }
+
+        this.startGame(result.playerName);
+      });
   }
 
-  // Construction de la grille au fur et à mesure
+  public onResetGame(): void {
+    this.mazeStore.reset();
+    this.buildGrid([]);
+  }
+
   public buildGrid(cells: Cell[]): (Cell | null)[][] {
     if (!cells.length) {
       return [];
@@ -109,28 +114,28 @@ export class App implements OnDestroy {
     const key = `${cell.x},${cell.y}`;
     const classes = ['maze-cell'];
 
+    classes.push(cell.value);
+
     if (key === this.playerKey) {
       classes.push('player');
-    }
-
-    switch (cell.value) {
-      case 'wall':
-        classes.push('wall');
-        break;
-      case 'trap':
-        classes.push('trap');
-        break;
-      case 'stop':
-        classes.push('stop');
-        break;
-      default:
-        classes.push('path');
     }
 
     return classes;
   }
 
-  // Récupération des cellules visibles depuis la map
+  private async startGame(playerName: string) {
+    try {
+      const data = await firstValueFrom(this.mazeService.startGame(playerName));
+
+      this.mazeStore.updateFromStart(data);
+
+      await this.mazeStore.explore();
+      await this.mazeStore.followShortestPath();
+    } catch (err) {
+      console.error('Erreur lors du démarrage du jeu :', err);
+    }
+  }
+
   private getCells(): Cell[] {
     return Array.from(this.mazeStore.map().values());
   }

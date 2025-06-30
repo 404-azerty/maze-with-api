@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>What's your name?</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="form">
+    <mat-form-field>
+      <mat-label>Player name</mat-label>
+      <input matInput name="playerName" formControlName="playerName" required />
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button matButton type="button" (click)="dialogRef.close()">Cancel</button>
+
+  <button
+    matButton="filled"
+    type="submit"
+    [disabled]="!form.valid"
+    (click)="onStartGame()"
+  >
+    Play!
+  </button>
+</mat-dialog-actions>
